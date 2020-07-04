@@ -60,12 +60,12 @@ sudo apt-get -y update && sudo apt-get -y install graylog-server graylog-enterpr
 #############################
 #### Configuring Graylog ####
 #############################
-GRAYLOG_PASSWORD=$(aws ssm get-parameter --name /${resource_pattern_ssm_name}/admin/password --with-decryption --region ${aws_region} | grep Value | cut -d '"' -f4)
+GRAYLOG_PASSWORD=$(aws ssm get-parameter --name ${graylog_ssm_password_path} --with-decryption --region ${aws_region} | grep Value | cut -d '"' -f4)
 GRAYLOG_PASSWORD_HASH=$(echo -n $GRAYLOG_PASSWORD | sha256sum | cut -d " " -f1)
 sed -i "s/^root_password_sha2 .*$/root_password_sha2 = $GRAYLOG_PASSWORD_HASH/" /etc/graylog/server/server.conf
 PASSWORD_SECRET=$(pwgen -N 1 -s 96)
 sed -i "s/^password_secret .*$/password_secret = $PASSWORD_SECRET/" /etc/graylog/server/server.conf
-echo "http_publish_uri = https://${my_graylog_server}" >> /etc/graylog/server/server.conf
+echo "http_publish_uri = https://${graylog_server}" >> /etc/graylog/server/server.conf
 echo "http_bind_address = 0.0.0.0:9000" >> /etc/graylog/server/server.conf
 
 if [ "${app_env}" == "prod" ];then
